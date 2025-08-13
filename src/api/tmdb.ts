@@ -49,4 +49,37 @@ export const getCategoryDisplayName = (category: MovieCategory): string => {
   };
 
   return displayNames[category];
-}
+};
+
+export const searchMulti = async (query: string): Promise<MovieResponse> => {
+  const encodedQuery = encodeURIComponent(query);
+  return fetchMovies(`/search/multi?query=${encodedQuery}`);
+};
+
+export const getTVSeasons = async (tvId: number): Promise<any> => {
+  try {
+    const response = await fetch(`${BASE_URL}/tv/${tvId}?api_key=${API_KEY}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching TV seasons:', error);
+    throw error;
+  }
+};
+
+export const getTVSeason = async (tvId: number, seasonNumber: number): Promise<any> => {
+  try {
+    const response = await fetch(`${BASE_URL}/tv/${tvId}/season/${seasonNumber}?api_key=${API_KEY}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching TV season:', error);
+    throw error;
+  }
+};
