@@ -1,0 +1,67 @@
+import { MediaProgress } from '../types/movie';
+
+const STORAGE_KEY = 'coachflix_progress';
+
+export const getStoredProgress = (): Record<string, MediaProgress> => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (error) {
+    console.error('Error reading progress from localStorage:', error);
+    return {};
+  }
+};
+
+export const saveProgress = (progress: Record<string, MediaProgress>) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  } catch (error) {
+    console.error('Error saving progress to localStorage:', error);
+  }
+};
+
+export const updateMediaProgress = (
+  id: number,
+  type: 'movie' | 'tv',
+  title: string,
+  poster_path: string | null,
+  backdrop_path: string | null,
+  watched: number,
+  duration: number,
+  season?: number,
+  episode?: number
+) => {
+  const progress = getStoredProgress();
+  const key = `${type === 'movie' ? 'm' : 't'}${id}`;
+  
+  const mediaProgress: MediaProgress = {
+    id,
+    type,
+    title,
+    poster_path,
+    backdrop_path,
+    progress: { watched, duration },
+    last_updated: Date.now(),
+  };
+
+  if (type === 'tv' && season !== undefined && episode !== undefined) {
+    mediaProgress.last_season_watched = season;
+    mediaProgress.last_episode_watched = episode;
+    mediaProgress.show_progress = progress[key]?.show_progress || {};
+    mediaProgress.show_progress[`s${season}e${episode}`] = {
+      season,
+      episode,
+      progress: { watched, duration },
+      last_updated: Date.now(),
+    };
+  }
+
+  progress[key] = mediaProgress;
+  saveProgress(progress);
+};
+
+export const getMediaProgress = (id: number, type: 'movie' | 'tv'): MediaProgress | null => {
+  const progress = getStoredProgress();
+  const key = `${type === 'movie' ? 'm' : 't'}${id}`;
+  return progress[key] || null;
+};
