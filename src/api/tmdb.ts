@@ -11,7 +11,8 @@ export const getImageUrl = (path: string | null): string => {
 
 const fetchMovies = async (endpoint: string): Promise<MovieResponse> => {
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}?api_key=${API_KEY}`);
+    const url = `${BASE_URL}${endpoint}${endpoint.includes('?') ? '&' : '?'}api_key=${API_KEY}`;
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
