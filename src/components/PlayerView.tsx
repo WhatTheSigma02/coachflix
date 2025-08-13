@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Movie } from '../types/movie';
 import { ArrowLeft, Play, ChevronDown } from 'lucide-react';
-import { getTVSeasons, getTVSeason } from '../api/tmdb';
+import { getTVSeasons, getTVSeason } from '../api/imdb';
 import { updateMediaProgress, getMediaProgress } from '../utils/progress';
 
 interface PlayerViewProps {

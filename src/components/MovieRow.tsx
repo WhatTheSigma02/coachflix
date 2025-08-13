@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Movie, MovieCategory } from '../types/movie';
-import { getMoviesByCategory, getCategoryDisplayName } from '../api/tmdb';
+import { getMoviesByCategory, getCategoryDisplayName } from '../api/imdb';
 import MovieCard from './MovieCard';
 import SkeletonCard from './SkeletonCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';

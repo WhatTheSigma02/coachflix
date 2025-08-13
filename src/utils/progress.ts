@@ -21,7 +21,7 @@ export const saveProgress = (progress: Record<string, MediaProgress>) => {
 };
 
 export const updateMediaProgress = (
-  id: number,
+  id: string,
   type: 'movie' | 'tv',
   title: string,
   poster_path: string | null,
@@ -32,7 +32,7 @@ export const updateMediaProgress = (
   episode?: number
 ) => {
   const progress = getStoredProgress();
-  const key = `${type === 'movie' ? 'm' : 't'}${id}`;
+  const key = `${type === 'movie' ? 'm' : 't'}_${id}`;
   
   const mediaProgress: MediaProgress = {
     id,
@@ -60,8 +60,8 @@ export const updateMediaProgress = (
   saveProgress(progress);
 };
 
-export const getMediaProgress = (id: number, type: 'movie' | 'tv'): MediaProgress | null => {
+export const getMediaProgress = (id: string, type: 'movie' | 'tv'): MediaProgress | null => {
   const progress = getStoredProgress();
-  const key = `${type === 'movie' ? 'm' : 't'}${id}`;
+  const key = `${type === 'movie' ? 'm' : 't'}_${id}`;
   return progress[key] || null;
 };

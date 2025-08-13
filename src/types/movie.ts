@@ -1,5 +1,5 @@
 export interface Movie {
-  id: number;
+  id: string; // IMDb ID format like "tt1234567"
   title: string;
   name?: string; // TV shows use 'name' instead of 'title'
   poster_path: string | null;
@@ -33,7 +33,7 @@ export interface EpisodeProgress {
 }
 
 export interface MediaProgress {
-  id: number;
+  id: string; // IMDb ID format
   type: 'movie' | 'tv';
   title: string;
   poster_path: string | null;
@@ -43,4 +43,45 @@ export interface MediaProgress {
   last_episode_watched?: number;
   show_progress?: Record<string, EpisodeProgress>;
   last_updated: number;
+}
+
+// IMDb API specific interfaces
+export interface ImdbApiImage {
+  url: string;
+  width: number;
+  height: number;
+  type: string;
+}
+
+export interface ImdbApiRating {
+  aggregateRating: number;
+  voteCount: number;
+}
+
+export interface ImdbApiTitle {
+  id: string;
+  type: string;
+  primaryTitle: string;
+  originalTitle: string;
+  primaryImage?: ImdbApiImage;
+  startYear: number;
+  endYear?: number;
+  genres: string[];
+  rating?: ImdbApiRating;
+  plot: string;
+}
+
+export interface ImdbApiSeason {
+  season: string;
+  episodeCount: number;
+}
+
+export interface ImdbApiEpisode {
+  id: string;
+  title: string;
+  primaryImage?: ImdbApiImage;
+  season: string;
+  episodeNumber: number;
+  plot: string;
+  rating?: ImdbApiRating;
 }

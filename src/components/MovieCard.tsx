@@ -1,6 +1,6 @@
 import React from 'react';
 import { Movie } from '../types/movie';
-import { getImageUrl } from '../api/tmdb';
+import { getImageUrl } from '../api/imdb';
 import { getMediaProgress } from '../utils/progress';
 
 interface MovieCardProps {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { Movie } from '../types/movie';
-import { searchMulti, getImageUrl } from '../api/tmdb';
+import { searchMulti, getImageUrl } from '../api/imdb';
 
 interface SearchBarProps {
   onMovieClick: (movie: Movie) => void;
