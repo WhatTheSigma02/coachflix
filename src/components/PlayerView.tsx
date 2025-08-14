@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Movie } from '../types/movie';
-import { ArrowLeft, Play, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Play, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getTVSeasons, getTVSeason } from '../api/imdb';
 import { updateMediaProgress, getMediaProgress } from '../utils/progress';
 
@@ -32,6 +32,7 @@ const PlayerView: React.FC<PlayerViewProps> = ({ movie, onBack }) => {
   const [selectedEpisode, setSelectedEpisode] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showSeasonDropdown, setShowSeasonDropdown] = useState(false);
+  const [showEpisodeGrid, setShowEpisodeGrid] = useState(false);
   
   const mediaType = movie.media_type || 'movie';
   const title = movie.title || movie.name || 'Unknown Title';
@@ -112,6 +113,42 @@ const PlayerView: React.FC<PlayerViewProps> = ({ movie, onBack }) => {
     setSelectedSeason(seasonNumber);
     setSelectedEpisode(1);
     setShowSeasonDropdown(false);
+    setShowEpisodeGrid(false);
+  };
+
+  const handleEpisodeChange = (episodeNumber: number) => {
+    setSelectedEpisode(episodeNumber);
+    setShowEpisodeGrid(false);
+  };
+
+  const goToNextEpisode = () => {
+    const currentEpisodeIndex = episodes.findIndex(ep => ep.episode_number === selectedEpisode);
+    if (currentEpisodeIndex < episodes.length - 1) {
+      setSelectedEpisode(episodes[currentEpisodeIndex + 1].episode_number);
+    } else if (selectedSeason < seasons.length) {
+      // Go to next season, first episode
+      setSelectedSeason(selectedSeason + 1);
+      setSelectedEpisode(1);
+    }
+  };
+
+  const goToPreviousEpisode = () => {
+    const currentEpisodeIndex = episodes.findIndex(ep => ep.episode_number === selectedEpisode);
+    if (currentEpisodeIndex > 0) {
+      setSelectedEpisode(episodes[currentEpisodeIndex - 1].episode_number);
+    } else if (selectedSeason > 1) {
+      // Go to previous season, last episode
+      const prevSeason = selectedSeason - 1;
+      setSelectedSeason(prevSeason);
+      // We'll need to fetch the previous season's episodes to get the last episode
+      fetchEpisodes(prevSeason).then(() => {
+        // This will be set after episodes are loaded
+      });
+    }
+  };
+
+  const getCurrentEpisode = () => {
+    return episodes.find(ep => ep.episode_number === selectedEpisode);
   };
 
   const getPlayerUrl = () => {
@@ -151,7 +188,8 @@ const PlayerView: React.FC<PlayerViewProps> = ({ movie, onBack }) => {
 
         {/* TV Show Controls */}
         {mediaType === 'tv' && seasons.length > 0 && (
-          <div className="mb-6 flex flex-wrap items-center gap-4">
+          <div className="mb-6 space-y-4">
+            <div className="flex flex-wrap items-center gap-4">
             {/* Season Selector */}
             <div className="relative">
               <button
@@ -177,21 +215,87 @@ const PlayerView: React.FC<PlayerViewProps> = ({ movie, onBack }) => {
               )}
             </div>
 
-            {/* Episode Selector */}
+            {/* Current Episode Info */}
             {episodes.length > 0 && (
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-300">Episode:</span>
-                <select
-                  value={selectedEpisode}
-                  onChange={(e) => setSelectedEpisode(Number(e.target.value))}
-                  className="bg-gray-800 text-white px-3 py-2 rounded-lg border border-gray-700 focus:border-red-600 focus:outline-none"
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={goToPreviousEpisode}
+                  disabled={selectedSeason === 1 && selectedEpisode === 1}
+                  className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-3 py-2 rounded-lg transition-colors duration-200"
                 >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous</span>
+                </button>
+                
+                <div className="flex-1">
+                  <div className="text-white font-semibold">
+                    Episode {selectedEpisode}: {getCurrentEpisode()?.name || 'Loading...'}
+                  </div>
+                  {getCurrentEpisode()?.overview && (
+                    <p className="text-gray-400 text-sm mt-1 line-clamp-2">
+                      {getCurrentEpisode()?.overview}
+                    </p>
+                  )}
+                </div>
+                
+                <button
+                  onClick={() => setShowEpisodeGrid(!showEpisodeGrid)}
+                  className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  All Episodes
+                </button>
+                
+                <button
+                  onClick={goToNextEpisode}
+                  disabled={selectedSeason === seasons.length && selectedEpisode === episodes.length}
+                  className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-3 py-2 rounded-lg transition-colors duration-200"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+            </div>
+
+            {/* Episode Grid */}
+            {showEpisodeGrid && episodes.length > 0 && (
+              <div className="bg-gray-900 rounded-lg p-4">
+                <h3 className="text-white font-semibold mb-4">
+                  Season {selectedSeason} Episodes
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {episodes.map((episode) => (
-                    <option key={episode.id} value={episode.episode_number}>
-                      {episode.episode_number}. {episode.name}
-                    </option>
+                    <div
+                      key={episode.id}
+                      onClick={() => handleEpisodeChange(episode.episode_number)}
+                      className={`cursor-pointer rounded-lg p-3 transition-all duration-200 ${
+                        episode.episode_number === selectedEpisode
+                          ? 'bg-red-600 text-white'
+                          : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-start space-x-3">
+                        {episode.still_path && (
+                          <img
+                            src={episode.still_path}
+                            alt={episode.name}
+                            className="w-16 h-10 object-cover rounded flex-shrink-0"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm">
+                            {episode.episode_number}. {episode.name}
+                          </div>
+                          {episode.overview && (
+                            <p className="text-xs opacity-75 mt-1 line-clamp-2">
+                              {episode.overview}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </select>
+                </div>
               </div>
             )}
           </div>

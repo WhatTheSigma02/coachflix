@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Movie, MovieCategory } from './types/movie';
 import Navbar from './components/Navbar';
 import MovieRow from './components/MovieRow';
+import ContinueWatching from './components/ContinueWatching';
 import PlayerView from './components/PlayerView';
 
 const categories: MovieCategory[] = [
@@ -34,6 +35,8 @@ function App() {
       ) : (
         <main className="pt-20">
           <div className="max-w-7xl mx-auto">
+            <ContinueWatching onMovieClick={handleMovieClick} />
+            
             <div className="mb-8 px-4">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 Discover Movies & TV Shows

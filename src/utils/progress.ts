@@ -5,7 +5,19 @@ const STORAGE_KEY = 'coachflix_progress';
 export const getStoredProgress = (): Record<string, MediaProgress> => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
+    const parsed = stored ? JSON.parse(stored) : {};
+    
+    // Clean up old entries (older than 30 days)
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const cleaned: Record<string, MediaProgress> = {};
+    
+    Object.entries(parsed).forEach(([key, value]) => {
+      if ((value as MediaProgress).last_updated > thirtyDaysAgo) {
+        cleaned[key] = value as MediaProgress;
+      }
+    });
+    
+    return cleaned;
   } catch (error) {
     console.error('Error reading progress from localStorage:', error);
     return {};
@@ -58,10 +70,19 @@ export const updateMediaProgress = (
 
   progress[key] = mediaProgress;
   saveProgress(progress);
+  
+  return mediaProgress;
 };
 
 export const getMediaProgress = (id: string, type: 'movie' | 'tv'): MediaProgress | null => {
   const progress = getStoredProgress();
   const key = `${type === 'movie' ? 'm' : 't'}_${id}`;
   return progress[key] || null;
+};
+
+export const removeMediaProgress = (id: string, type: 'movie' | 'tv') => {
+  const progress = getStoredProgress();
+  const key = `${type === 'movie' ? 'm' : 't'}_${id}`;
+  delete progress[key];
+  saveProgress(progress);
 };
