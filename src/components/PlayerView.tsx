@@ -189,84 +189,86 @@ const PlayerView: React.FC<PlayerViewProps> = ({ movie, onBack }) => {
         {/* TV Show Controls */}
         {mediaType === 'tv' && seasons.length > 0 && (
           <div className="mb-6 space-y-4">
-            <div className="flex flex-wrap items-center gap-4">
             {/* Season Selector */}
-            <div className="relative">
-              <button
-                onClick={() => setShowSeasonDropdown(!showSeasonDropdown)}
-                className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-              >
-                <span>Season {selectedSeason}</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              
-              {showSeasonDropdown && (
-                <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-10 min-w-40">
-                  {seasons.map((season) => (
-                    <button
-                      key={season.id}
-                      onClick={() => handleSeasonChange(season.season_number)}
-                      className="w-full text-left px-4 py-2 text-white hover:bg-gray-800 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
-                    >
-                      {season.name}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="flex flex-wrap items-center gap-4 mb-4">
+              <div className="relative">
+                <button
+                  onClick={() => setShowSeasonDropdown(!showSeasonDropdown)}
+                  className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  <span>Season {selectedSeason}</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                
+                {showSeasonDropdown && (
+                  <div className="absolute top-full left-0 mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-10 min-w-40">
+                    {seasons.map((season) => (
+                      <button
+                        key={season.season}
+                        onClick={() => handleSeasonChange(parseInt(season.season))}
+                        className="w-full text-left px-4 py-2 text-white hover:bg-gray-800 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
+                      >
+                        Season {season.season}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Current Episode Info */}
             {episodes.length > 0 && (
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
                 <button
                   onClick={goToPreviousEpisode}
                   disabled={selectedSeason === 1 && selectedEpisode === 1}
-                  className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-3 py-2 rounded-lg transition-colors duration-200"
+                  className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-3 py-2 rounded-lg transition-colors duration-200"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Previous</span>
                 </button>
                 
-                <div className="flex-1">
-                  <div className="text-white font-semibold">
+                <div className="flex-1 min-w-0">
+                  <div className="text-white font-semibold text-lg">
                     Episode {selectedEpisode}: {getCurrentEpisode()?.name || 'Loading...'}
                   </div>
                   {getCurrentEpisode()?.overview && (
-                    <p className="text-gray-400 text-sm mt-1 line-clamp-2">
+                    <p className="text-gray-400 text-sm mt-2 line-clamp-2">
                       {getCurrentEpisode()?.overview}
                     </p>
                   )}
                 </div>
                 
-                <button
-                  onClick={() => setShowEpisodeGrid(!showEpisodeGrid)}
-                  className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                >
-                  All Episodes
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowEpisodeGrid(!showEpisodeGrid)}
+                    className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                  >
+                    All Episodes
+                  </button>
                 
-                <button
-                  onClick={goToNextEpisode}
-                  disabled={selectedSeason === seasons.length && selectedEpisode === episodes.length}
-                  className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-3 py-2 rounded-lg transition-colors duration-200"
-                >
-                  <span>Next</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                  <button
+                    onClick={goToNextEpisode}
+                    disabled={selectedSeason === seasons.length && selectedEpisode === episodes.length}
+                    className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-900 disabled:text-gray-500 text-white px-3 py-2 rounded-lg transition-colors duration-200"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
-            </div>
 
             {/* Episode Grid */}
             {showEpisodeGrid && episodes.length > 0 && (
-              <div className="bg-gray-900 rounded-lg p-4">
+              <div className="bg-gray-900 rounded-lg p-6 mt-4">
                 <h3 className="text-white font-semibold mb-4">
                   Season {selectedSeason} Episodes
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {episodes.map((episode) => (
                     <div
-                      key={episode.id}
+                      key={`${episode.season_number}-${episode.episode_number}`}
                       onClick={() => handleEpisodeChange(episode.episode_number)}
                       className={`cursor-pointer rounded-lg p-3 transition-all duration-200 ${
                         episode.episode_number === selectedEpisode
@@ -275,12 +277,16 @@ const PlayerView: React.FC<PlayerViewProps> = ({ movie, onBack }) => {
                       }`}
                     >
                       <div className="flex items-start space-x-3">
-                        {episode.still_path && (
+                        {episode.still_path ? (
                           <img
                             src={episode.still_path}
                             alt={episode.name}
                             className="w-16 h-10 object-cover rounded flex-shrink-0"
                           />
+                        ) : (
+                          <div className="w-16 h-10 bg-gray-700 rounded flex-shrink-0 flex items-center justify-center">
+                            <Play className="w-4 h-4 text-gray-400" />
+                          </div>
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm">
