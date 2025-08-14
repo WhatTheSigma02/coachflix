@@ -66,6 +66,7 @@ export const getMoviesByCategory = async (category: MovieCategory): Promise<Movi
     sortBy: config.sortBy,
     sortOrder: config.sortOrder,
     minVoteCount: 1000, // Filter for titles with decent vote counts
+    countryCodes: ['US'], // Filter for US content
   };
 
   const data = await fetchImdbApi('/titles', params);
